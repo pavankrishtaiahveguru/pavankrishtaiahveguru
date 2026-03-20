@@ -5,7 +5,7 @@
 
 <!-- TYPING ANIMATION -->
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=800&color=6EE7F7&center=true&vCenter=true&multiline=false&width=700&lines=Hey+there%2C+I'm+Pavan+Krishtaiah+Veguru+%F0%9F%91%8B;Full+Stack+Developer+%7C+Frontend+Focused;React+%7C+Java+%7C+Spring+Boot+%7C+Spring+Security;Building+Beautiful+%26+Scalable+Web+Apps;Always+Learning+%7C+Always+Crafting+%E2%9C%A8" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=800&color=6EE7F7&center=true&vCenter=true&multiline=false&width=750&lines=Hey+there%2C+I'm+Pavan+Krishtaiah+Veguru+%F0%9F%91%8B;Frontend+Developer+%7C+React+%7C+Tailwind+CSS;Java+%7C+Spring+Boot+%7C+Spring+Security;Building+Clean+%26+Scalable+Web+Apps;Currently+Learning+Next.js+%F0%9F%9A%80" alt="Typing SVG" />
 </a>
 
 <br/>
@@ -40,11 +40,21 @@
   <h2>🧠 &nbsp;About Me</h2>
 </div>
 
+<p align="center">
+Frontend Developer with strong expertise in <strong>HTML5, CSS3, JavaScript (ES6+), React.js, and Tailwind CSS</strong>.<br/>
+Experienced in building responsive, scalable, and mobile-first web applications using modern component-based architecture.<br/>
+Skilled in <strong>React Hooks, client-side routing, state management, and REST API integration</strong>.<br/>
+Passionate about developing clean, reusable, and high-performance user interfaces in collaborative environments.<br/>
+Successfully deployed multiple projects with optimized performance and responsive UI architecture.
+</p>
+
+<br/>
+
 ```yaml
 Name     : Pavan Krishtaiah Veguru
 Role     : Full Stack Developer (Frontend Focused)
 Location : Hyderabad, India 🇮🇳
-Learning : Node.js & Advanced Backend Architecture
+Learning : Next.js & Advanced Frontend Architecture
 Passion  : Clean UIs · Smooth Animations · Scalable Apps
 Goal     : Software Developer @ a Product-Based Company
 Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
@@ -68,22 +78,19 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 <p align="center">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
-  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
-  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+  <img src="https://img.shields.io/badge/JavaScript_ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" />
+  <img src="https://img.shields.io/badge/React.js-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
-  <img src="https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white" />
+  <img src="https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white" />
 </p>
 
 **🔧 Backend**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
+  <img src="https://img.shields.io/badge/Core_Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
   <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
   <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" />
   <img src="https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white" />
-  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
-  <img src="https://img.shields.io/badge/Servlets-007396?style=for-the-badge&logo=java&logoColor=white" />
   <img src="https://img.shields.io/badge/JDBC-003B57?style=for-the-badge&logo=java&logoColor=white" />
 </p>
 
@@ -95,7 +102,12 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
   <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" />
   <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white" />
   <img src="https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" />
-  <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" />
+</p>
+
+**🌱 Currently Learning**
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
 </p>
 
 ---
@@ -127,10 +139,10 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
     <td width="50%" valign="top">
       <h3 align="center">📝 Online Examination System</h3>
       <p align="center">
-        <img src="https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white" />
+        <img src="https://img.shields.io/badge/Core_Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white" />
         <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white" />
-        <img src="https://img.shields.io/badge/Servlets-007396?style=flat-square&logo=java&logoColor=white" />
         <img src="https://img.shields.io/badge/JDBC-003B57?style=flat-square&logo=java&logoColor=white" />
+        <img src="https://img.shields.io/badge/Hibernate-59666C?style=flat-square&logo=hibernate&logoColor=white" />
       </p>
       <p align="center">
         A full-stack web application for automated online exams — featuring secure student login, admin dashboard, time-bound tests, and real-time automated scoring.
@@ -243,7 +255,7 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 
 | 🔭 Building | 🌐 Portfolio site @ [pavanveguru.netlify.app](https://pavanveguru.netlify.app) |
 |---|---|
-| 📚 Learning | Node.js · Express · REST APIs |
+| 📚 Learning | Next.js · App Router · Server Components |
 | 🎯 Goal | Land an SDE role at a product-based company |
 | 💬 Ask me about | React · Tailwind CSS · Java · Spring Boot · Spring Security |
 | 📸 Hobby | Wildlife Photography [@pavanveguruphotography](https://instagram.com/pavanveguruphotography) |
