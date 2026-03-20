@@ -220,30 +220,6 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
   <img src="https://raw.githubusercontent.com/pavankrishtaiahveguru/pavankrishtaiahveguru/output/github-contribution-grid-snake-dark.svg" alt="Snake animation" />
 </div>
 
-> ⚙️ **Setup note:** To enable the snake animation, add this GitHub Action to your profile repo under `.github/workflows/snake.yml`:
->
-> ```yaml
-> name: Generate Snake
-> on:
->   schedule:
->     - cron: "0 0 * * *"
->   workflow_dispatch:
-> jobs:
->   generate:
->     runs-on: ubuntu-latest
->     steps:
->       - uses: Platane/snk/svg-only@v3
->         with:
->           github_user_name: pavankrishtaiahveguru
->           outputs: dist/github-contribution-grid-snake-dark.svg?palette=github-dark
->       - uses: crazy-max/ghaction-github-pages@v3.1.0
->         with:
->           target_branch: output
->           build_dir: dist
->         env:
->           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-> ```
-
 ---
 
 <!-- CURRENTLY -->
