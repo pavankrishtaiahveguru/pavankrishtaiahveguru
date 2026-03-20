@@ -1,11 +1,11 @@
 <div align="center">
 
 <!-- HERO BANNER -->
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0f0c29,50:302b63,100:24243e&height=200&section=header&text=Pavan%20Veguru&fontSize=60&fontColor=ffffff&fontAlignY=38&desc=Full%20Stack%20Developer%20%7C%20React%20%7C%20Java&descAlignY=60&descSize=20&animation=fadeIn" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0f0c29,50:302b63,100:24243e&height=200&section=header&text=Pavan%20Krishtaiah%20Veguru&fontSize=48&fontColor=ffffff&fontAlignY=38&desc=Full%20Stack%20Developer%20%7C%20React%20%7C%20Java%20%7C%20Spring%20Boot&descAlignY=60&descSize=18&animation=fadeIn" />
 
 <!-- TYPING ANIMATION -->
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=800&color=6EE7F7&center=true&vCenter=true&multiline=false&width=650&lines=Hey+there%2C+I'm+Pavan+%F0%9F%91%8B;Full+Stack+Developer+%7C+Frontend+Focused;Building+Beautiful+%26+Scalable+Web+Apps;React+%7C+Java+%7C+Tailwind+%7C+MySQL;Always+Learning+%7C+Always+Crafting+%E2%9C%A8" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=800&color=6EE7F7&center=true&vCenter=true&multiline=false&width=700&lines=Hey+there%2C+I'm+Pavan+Krishtaiah+Veguru+%F0%9F%91%8B;Full+Stack+Developer+%7C+Frontend+Focused;React+%7C+Java+%7C+Spring+Boot+%7C+Spring+Security;Building+Beautiful+%26+Scalable+Web+Apps;Always+Learning+%7C+Always+Crafting+%E2%9C%A8" alt="Typing SVG" />
 </a>
 
 <br/>
@@ -41,10 +41,10 @@
 </div>
 
 ```yaml
-Name     : Pavan Veguru
+Name     : Pavan Krishtaiah Veguru
 Role     : Full Stack Developer (Frontend Focused)
 Location : Hyderabad, India 🇮🇳
-Learning : Node.js & Backend Architecture
+Learning : Node.js & Advanced Backend Architecture
 Passion  : Clean UIs · Smooth Animations · Scalable Apps
 Goal     : Software Developer @ a Product-Based Company
 Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
@@ -80,8 +80,10 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 <p align="center">
   <img src="https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
   <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
+  <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white" />
+  <img src="https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" />
   <img src="https://img.shields.io/badge/Servlets-007396?style=for-the-badge&logo=java&logoColor=white" />
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
   <img src="https://img.shields.io/badge/JDBC-003B57?style=for-the-badge&logo=java&logoColor=white" />
 </p>
 
@@ -145,12 +147,13 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
       <h3 align="center">🔐 Auth System — Login & Signup</h3>
       <p align="center">
         <img src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat-square&logo=springboot&logoColor=white" />
+        <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=flat-square&logo=springsecurity&logoColor=white" />
         <img src="https://img.shields.io/badge/JWT-000000?style=flat-square&logo=jsonwebtokens&logoColor=white" />
         <img src="https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black" />
         <img src="https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white" />
       </p>
       <p align="center">
-        Secure authentication system with JWT token integration, Spring Boot backend, and a polished React frontend. Includes protected routes, session management, and input validation.
+        Secure authentication system built with Spring Security + JWT, Spring Boot REST API backend, and a polished React frontend. Includes role-based access, protected routes, and session management.
       </p>
       <p align="center">
         <a href="https://github.com/pavankrishtaiahveguru">
@@ -206,7 +209,7 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 </div>
 
 > ⚙️ **Setup note:** To enable the snake animation, add this GitHub Action to your profile repo under `.github/workflows/snake.yml`:
-> 
+>
 > ```yaml
 > name: Generate Snake
 > on:
@@ -242,7 +245,7 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 |---|---|
 | 📚 Learning | Node.js · Express · REST APIs |
 | 🎯 Goal | Land an SDE role at a product-based company |
-| 💬 Ask me about | React · Tailwind CSS · Java · Spring Boot |
+| 💬 Ask me about | React · Tailwind CSS · Java · Spring Boot · Spring Security |
 | 📸 Hobby | Wildlife Photography [@pavanveguruphotography](https://instagram.com/pavanveguruphotography) |
 
 </div>
