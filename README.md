@@ -51,18 +51,18 @@ Successfully deployed multiple projects with optimized performance and responsiv
 <br/>
 
 ```yaml
-Name     : Pavan Krishtaiah Veguru
-Role     : Full Stack Developer (Frontend Focused)
-Location : Hyderabad, India 🇮🇳
-Learning : Next.js & Advanced Frontend Architecture
-Passion  : Clean UIs · Smooth Animations · Scalable Apps
-Goal     : Software Developer @ a Product-Based Company
-Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
+Name: Pavan Krishtaiah Veguru
+Role: Full Stack Developer (Frontend Focused)
+Location: Hyderabad, India 🇮🇳
+Learning: Next.js & Advanced Frontend Architecture
+Passion: Clean UIs · Smooth Animations · Scalable Apps
+Goal: Software Developer @ a Product-Based Company
+Hobbies: Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 ```
 
 <div align="center">
 
-> *"I don't just write code — I craft experiences that users feel."*
+> _"I don't just write code — I craft experiences that users feel."_
 
 </div>
 
@@ -204,12 +204,12 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 </div>
 
 <div align="center">
-  <img width="49%" src="https://github-readme-stats.vercel.app/api?username=pavankrishtaiahveguru&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0d1117&title_color=6EE7F7&icon_color=6EE7F7&text_color=ffffff&rank_icon=github" />
-  <img width="49%" src="https://github-readme-streak-stats.herokuapp.com/?user=pavankrishtaiahveguru&theme=tokyonight&hide_border=true&background=0d1117&stroke=6EE7F7&ring=6EE7F7&fire=ff6b6b&currStreakLabel=6EE7F7" />
+  <img width="49%" src="https://github-readme-stats.vercel.app/api?username=pavankrishtaiahveguru&show_icons=true&theme=default&hide_border=true&bg_color=ffffff&title_color=166534&icon_color=166534&text_color=1f2937&rank_icon=github" />
+  <img width="49%" src="https://streak-stats.demolab.com/?user=pavankrishtaiahveguru&theme=default&hide_border=true&background=ffffff&stroke=166534&ring=166534&fire=48BB78&currStreakLabel=166534" />
 </div>
 
 <div align="center">
-  <img width="45%" src="https://github-readme-stats.vercel.app/api/top-langs/?username=pavankrishtaiahveguru&layout=compact&theme=tokyonight&hide_border=true&bg_color=0d1117&title_color=6EE7F7&text_color=ffffff&langs_count=8" />
+  <img width="45%" src="https://github-readme-stats.vercel.app/api/top-langs/?username=pavankrishtaiahveguru&layout=compact&theme=default&hide_border=true&bg_color=ffffff&title_color=166534&text_color=1f2937&langs_count=8" />
 </div>
 
 ---
@@ -217,7 +217,20 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 <!-- CONTRIBUTION SNAKE -->
 <div align="center">
   <h2>🐍 &nbsp;Contribution Graph</h2>
-  <img src="https://raw.githubusercontent.com/pavankrishtaiahveguru/pavankrishtaiahveguru/output/github-contribution-grid-snake-dark.svg" alt="Snake animation" />
+  <picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="https://raw.githubusercontent.com/pavankrishtaiahveguru/pavankrishtaiahveguru/output/github-contribution-grid-snake-dark.svg"
+    />
+    <source
+      media="(prefers-color-scheme: light)"
+      srcset="https://raw.githubusercontent.com/pavankrishtaiahveguru/pavankrishtaiahveguru/output/github-contribution-grid-snake.svg"
+    />
+    <img
+      alt="GitHub contribution snake animation"
+      src="https://raw.githubusercontent.com/pavankrishtaiahveguru/pavankrishtaiahveguru/output/github-contribution-grid-snake.svg"
+    />
+  </picture>
 </div>
 
 ---
@@ -229,21 +242,13 @@ Hobbies  : Wildlife Photography 📷 · UI/UX Design · Exploring Web Aesthetics
 
 <div align="center">
 
-| 🔭 Building | 🌐 Portfolio site @ [pavanveguru.netlify.app](https://pavanveguru.netlify.app) |
-|---|---|
-| 📚 Learning | Next.js · App Router · Server Components |
-| 🎯 Goal | Land an SDE role at a product-based company |
-| 💬 Ask me about | React · Tailwind CSS · Java · Spring Boot · Spring Security |
-| 📸 Hobby | Wildlife Photography [@pavanveguruphotography](https://instagram.com/pavanveguruphotography) |
+| 🔭 Building     | 🌐 Portfolio site @ [pavanveguru.netlify.app](https://pavanveguru.netlify.app)               |
+| --------------- | -------------------------------------------------------------------------------------------- |
+| 📚 Learning     | Next.js · App Router · Server Components                                                     |
+| 🎯 Goal         | Land an SDE role at a product-based company                                                  |
+| 💬 Ask me about | React · Tailwind CSS · Java · Spring Boot · Spring Security                                  |
+| 📸 Hobby        | Wildlife Photography [@pavanveguruphotography](https://instagram.com/pavanveguruphotography) |
 
-</div>
-
----
-
-<!-- ACTIVITY GRAPH -->
-<div align="center">
-  <h2>📈 &nbsp;Activity</h2>
-  <img width="95%" src="https://github-readme-activity-graph.vercel.app/graph?username=pavankrishtaiahveguru&bg_color=0d1117&color=6EE7F7&line=6EE7F7&point=ffffff&area=true&hide_border=true" />
 </div>
 
 ---

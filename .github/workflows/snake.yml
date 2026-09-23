@@ -2,7 +2,7 @@ name: Generate Snake
 
 on:
   schedule:
-    - cron: "0 */6 * * *"   # every 6 hours
+    - cron: "0 0 * * *" # once a day is enough — contributions don't change fast enough to justify every 6h
   workflow_dispatch: {}
   push:
     branches:
@@ -14,14 +14,22 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Generate snake SVG
-        uses: Platane/snk@v3
+        uses: Platane/snk/svg-only@v3
         with:
           github_user_name: pavankrishtaiahveguru
           outputs: |
-            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake.svg?color_snake=#166534&color_dots=#F0F2F3,#C6F6D5,#9AE6B4,#48BB78,#166534
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+
+      - name: Verify generated files
+        run: |
+          ls -la dist
+          test -f dist/github-contribution-grid-snake.svg
+          test -f dist/github-contribution-grid-snake-dark.svg
+          grep -q "166534" dist/github-contribution-grid-snake.svg
 
       - name: Push to output branch
         uses: crazy-max/ghaction-github-pages@v4
