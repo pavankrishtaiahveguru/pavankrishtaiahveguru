@@ -1,0 +1,64 @@
+name: Generate GitHub Stats Cards
+
+# Regenerates the three self-hosted stat cards in profile/ from live GitHub
+# data. No external stats services (github-readme-stats.vercel.app,
+# streak-stats.demolab.com, ...) are involved at any point.
+on:
+  schedule:
+    - cron: "0 2 * * *" # daily at 02:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: github-stats
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch GitHub data and generate SVG cards
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 profile/scripts/generate_stats.py
+
+      - name: Validate generated SVG files
+        run: |
+          set -e
+          for f in profile/github-stats.svg profile/github-streak.svg profile/top-languages.svg; do
+            if [ ! -s "$f" ]; then
+              echo "::error::$f is missing or empty"
+              exit 1
+            fi
+            if ! head -c 200 "$f" | grep -q "<svg"; then
+              echo "::error::$f does not contain valid SVG markup"
+              exit 1
+            fi
+            echo "OK: $f ($(wc -c < "$f") bytes)"
+          done
+
+      - name: Commit changed cards
+        id: commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(stats): refresh self-hosted stats cards [skip ci]"
+          file_pattern: profile/*.svg
+          # Nothing is staged automatically; unchanged files simply produce no commit.
+          commit_options: "--no-verify"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.commit.outputs.changes_detected }}" = "true" ]; then
+            echo "### Stats cards updated" >> "$GITHUB_STEP_SUMMARY"
+            git diff --stat HEAD^ HEAD -- profile/*.svg >> "$GITHUB_STEP_SUMMARY" || true
+          else
+            echo "### No changes — cards are already up to date" >> "$GITHUB_STEP_SUMMARY"
+          fi
