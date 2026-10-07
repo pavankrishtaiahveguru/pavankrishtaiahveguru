@@ -30,7 +30,7 @@ import re
 import sys
 import urllib.request
 import urllib.error
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 USERNAME = "pavankrishtaiahveguru"
 OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
@@ -92,6 +92,8 @@ def http_json(url: str, token: str, payload=None) -> dict:
     req = urllib.request.Request(url, data=data, headers=headers, method="POST" if data else "GET")
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
+            if not 200 <= resp.status < 300:
+                die(f"GitHub API returned HTTP {resp.status} for {url.split('?')[0]}")
             body = resp.read().decode("utf-8")
     except urllib.error.HTTPError as e:
         detail = e.read().decode("utf-8", "replace")[:300]
@@ -109,8 +111,8 @@ def rest_get(path: str, token: str, params: str = "") -> dict:
     return http_json(url, token)
 
 
-def graphql(query: str, token: str) -> dict:
-    payload = json.dumps({"query": query})
+def graphql(query: str, token: str, variables: dict) -> dict:
+    payload = json.dumps({"query": query, "variables": variables})
     resp = http_json(GRAPHQL_URL, token, payload=payload)
     if resp.get("errors"):
         die(f"GitHub GraphQL query failed: {json.dumps(resp['errors'])[:400]}")
@@ -203,9 +205,9 @@ def one_year_ago_iso() -> str:
 
 # --------------------------------------------------------- GraphQL streak ---
 CALENDAR_QUERY = """
-query($login: String!) {
+query($login: String!, $from: DateTime!, $to: DateTime!) {
   user(login: $login) {
-    contributionsCollection {
+        contributionsCollection(from: $from, to: $to) {
       contributionCalendar {
         totalContributions
         weeks {
@@ -219,27 +221,58 @@ query($login: String!) {
 
 
 def fetch_streak_data(token: str) -> dict:
+    now = datetime.now(timezone.utc)
+    from_date = now - timedelta(days=366)
+    from_value = from_date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    to_value = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    if not from_value:
+        raise RuntimeError("Contribution GraphQL 'from' date is empty")
+    if not to_value:
+        raise RuntimeError("Contribution GraphQL 'to' date is empty")
+    if from_value >= to_value:
+        raise RuntimeError(
+            f"Invalid contribution date range: from={from_value}, to={to_value}"
+        )
+    log("Contribution calendar range:")
+    log(f"  from={from_value}")
+    log(f"  to={to_value}")
     log(f"Fetching contribution calendar (GraphQL) for '{USERNAME}'...")
-    data = graphql(CALENDAR_QUERY, token)
-    try:
-        calendar = data["user"]["contributionsCollection"]["contributionCalendar"]
-    except (KeyError, TypeError):
+    data = graphql(CALENDAR_QUERY, token, {
+        "login": USERNAME,
+        "from": from_value,
+        "to": to_value,
+    })
+    user = data.get("user")
+    if not isinstance(user, dict):
+        die(f"GraphQL response has no user '{USERNAME}'")
+    collection = user.get("contributionsCollection")
+    if not isinstance(collection, dict):
+        die("GraphQL response missing user.contributionsCollection")
+    calendar = collection.get("contributionCalendar")
+    if not isinstance(calendar, dict):
         die("GraphQL response missing user.contributionsCollection.contributionCalendar")
+    weeks = calendar.get("weeks")
+    if not isinstance(weeks, list):
+        die("GraphQL contribution calendar is missing a valid weeks list")
+    total_contributions = calendar.get("totalContributions")
+    if (not isinstance(total_contributions, int) or isinstance(total_contributions, bool)
+            or total_contributions < 0):
+        die("GraphQL contribution calendar is missing a valid totalContributions value")
 
     days: list[tuple[str, int]] = []
-    for week in calendar.get("weeks", []):
-        for d in week.get("contributionDays", []):
-            days.append((d["date"], int(d["contributionCount"] or 0)))
+    for week_index, week in enumerate(weeks):
+        if not isinstance(week, dict) or not isinstance(week.get("contributionDays"), list):
+            die(f"GraphQL contribution calendar week {week_index} is missing contributionDays")
+        for day_index, day in enumerate(week["contributionDays"]):
+            if not isinstance(day, dict) or not isinstance(day.get("date"), str):
+                die(f"GraphQL contribution day {week_index}:{day_index} is missing a valid date")
+            count = day.get("contributionCount")
+            if not isinstance(count, int) or count < 0:
+                die(f"GraphQL contribution day {week_index}:{day_index} is missing a valid contributionCount")
+            days.append((day["date"], count))
     if not days:
-        die("Contribution calendar returned zero days — refusing to generate empty stats")
+        die("GraphQL contribution calendar contains no contribution days")
     days.sort(key=lambda x: x[0])
-
-    total_contributions = int(calendar.get("totalContributions") or 0)
-    summed = sum(c for _, c in days)
-    if total_contributions == 0 and summed == 0:
-        die("Contribution calendar totals are zero — refusing to generate empty stats")
-    if total_contributions == 0:
-        total_contributions = summed  # safety net, keeps GraphQL the source of truth
 
     # Streaks are computed from the official contribution calendar only.
     current = longest = 0
@@ -262,8 +295,10 @@ def fetch_streak_data(token: str) -> dict:
             break
     current = run
 
-    if longest <= 0:
-        die("Calculated longest streak is zero — refusing to generate empty stats")
+    log("Contribution calendar fetched successfully")
+    log(f"Total contributions: {total_contributions:,}")
+    log(f"Current streak: {current}")
+    log(f"Longest streak: {longest}")
     log(f"Contribution data fetched: total={total_contributions:,}, current_streak={current}, longest_streak={longest}, calendar_days={len(days)}")
     return {
         "total": total_contributions,
