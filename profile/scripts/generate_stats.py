@@ -458,8 +458,9 @@ def render_streak_card(st: dict) -> str:
     ]
     for col_cx, label, value, color in cols:
         anchor, lx = ("middle", col_cx)
+        value_font_size = int(min(26, 138 / (len(value) * 0.62)) * 10) / 10
         out.append(f'  <text x="{lx}" y="160" text-anchor="{anchor}" font-family="{FONT}" font-size="11" fill="{MUTED}">{esc(label)}</text>')
-        out.append(f'  <text x="{lx}" y="178" text-anchor="{anchor}" font-family="{FONT}" font-size="15" font-weight="700" fill="{color}">{esc(value)}</text>')
+        out.append(f'  <text x="{lx}" y="178" text-anchor="{anchor}" font-family="{FONT}" font-size="{value_font_size:.1f}" font-weight="700" fill="{color}">{esc(value)}</text>')
     # dividers between columns
     for dx in (-76, 76):
         out.append(f'  <line x1="{cx + dx}" y1="152" x2="{cx + dx}" y2="180" stroke="{STROKE}" stroke-width="1"/>')
