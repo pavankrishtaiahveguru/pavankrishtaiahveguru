@@ -456,11 +456,19 @@ def render_streak_card(st: dict) -> str:
         (cx, "Current Streak", streak_days_label(st["current"]), SECONDARY),
         (cx + 152, "Longest Streak", streak_days_label(st["longest"]), GREEN),
     ]
+    top_values = [
+        (cx - 152, fmt_int(st["total"]), BLUE, 124, 30, 114),
+        (cx, str(st["current"]), SECONDARY, 64, 30, 126),
+        (cx + 152, str(st["longest"]), GREEN, 124, 30, 114),
+    ]
+    for col_cx, value, color, max_width, max_font_size, y in top_values:
+        font_size = int(min(max_font_size, max_width / (len(value) * 0.62)) * 10) / 10
+        out.append(f'  <text x="{col_cx}" y="{y}" text-anchor="middle" font-family="{FONT}" font-size="{font_size:.1f}" font-weight="700" fill="{color}">{esc(value)}</text>')
+
     for col_cx, label, value, color in cols:
         anchor, lx = ("middle", col_cx)
-        value_font_size = int(min(26, 138 / (len(value) * 0.62)) * 10) / 10
         out.append(f'  <text x="{lx}" y="160" text-anchor="{anchor}" font-family="{FONT}" font-size="11" fill="{MUTED}">{esc(label)}</text>')
-        out.append(f'  <text x="{lx}" y="178" text-anchor="{anchor}" font-family="{FONT}" font-size="{value_font_size:.1f}" font-weight="700" fill="{color}">{esc(value)}</text>')
+        out.append(f'  <text x="{lx}" y="178" text-anchor="{anchor}" font-family="{FONT}" font-size="15" font-weight="700" fill="{color}">{esc(value)}</text>')
     # dividers between columns
     for dx in (-76, 76):
         out.append(f'  <line x1="{cx + dx}" y1="152" x2="{cx + dx}" y2="180" stroke="{STROKE}" stroke-width="1"/>')
