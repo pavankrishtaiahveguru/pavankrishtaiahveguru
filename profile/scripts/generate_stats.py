@@ -5,11 +5,12 @@ Self-hosted GitHub profile stats generator.
 
 Fetches live data for `pavankrishtaiahveguru` from the GitHub REST API and the
 GraphQL API (contribution calendar) and renders three fully self-contained SVG
-cards into `profile/`:
+cards into `profile/`, along with a JSON data file for the React dashboard:
 
   profile/github-stats.svg     stars / commits / PRs / issues / contributed-to
   profile/github-streak.svg    total contributions / current streak / longest streak
   profile/top-languages.svg    top languages by bytes of code
+  dashboard/public/stats.json dashboard data consumed by the React app
 
 Zero third-party dependencies: uses only the Python standard library, so the
 GitHub Actions workflow can run it on any runner without installing anything.
@@ -535,6 +536,39 @@ def validate_and_write(path: str, content: str, label: str) -> None:
     log(f"Generated {os.path.normpath(path)} ({size} bytes)")
 
 
+def write_dashboard_data(rest: dict, streak: dict, langs: list[dict]) -> None:
+    data = {
+        "username": USERNAME,
+        "generatedAt": datetime.now(timezone.utc).date().isoformat(),
+        "stats": {
+            "stars": rest["stars"],
+            "commits": rest["commits"],
+            "prs": rest["prs"],
+            "issues": rest["issues"],
+            "contributedTo": rest["contributed_to"],
+        },
+        "streak": {
+            "total": streak["total"],
+            "current": streak["current"],
+            "longest": streak["longest"],
+            "firstDate": streak["first_date"],
+            "lastDate": streak["last_date"],
+        },
+        "languages": [
+            {"name": language["name"], "pct": language["pct"]}
+            for language in langs
+        ],
+    }
+    path = os.path.join(OUT_DIR, "..", "dashboard", "public", "stats.json")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    content = json.dumps(data, indent=2) + "\n"
+    if not content.strip():
+        die("dashboard data: generated content is empty — aborting")
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+    log(f"Generated {os.path.normpath(path)}")
+
+
 # ------------------------------------------------------------------- main ---
 def main() -> None:
     token = os.environ.get("GITHUB_TOKEN", "").strip()
@@ -549,7 +583,8 @@ def main() -> None:
     validate_and_write(os.path.join(OUT_DIR, "github-stats.svg"), render_stats_card(rest), "github-stats")
     validate_and_write(os.path.join(OUT_DIR, "github-streak.svg"), render_streak_card(streak), "github-streak")
     validate_and_write(os.path.join(OUT_DIR, "top-languages.svg"), render_languages_card(langs), "top-languages")
-    log("All three SVG cards generated and validated successfully")
+    write_dashboard_data(rest, streak, langs)
+    log("All stats cards and dashboard data generated successfully")
 
 
 if __name__ == "__main__":
