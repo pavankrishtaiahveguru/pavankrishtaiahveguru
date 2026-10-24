@@ -7,9 +7,10 @@ Fetches live data for `pavankrishtaiahveguru` from the GitHub REST API and the
 GraphQL API (contribution calendar) and renders three fully self-contained SVG
 cards into `profile/`:
 
-  profile/github-stats.svg     stars / commits / PRs / issues / other-repo commits
+  profile/github-stats.svg     stars / commits / PRs / issues / calendar-year contributions
   profile/github-streak.svg    calendar-year / rolling contributions and streaks
   profile/top-languages.svg    top languages by bytes of code
+
 Zero third-party dependencies: uses only the Python standard library, so the
 GitHub Actions workflow can run it on any runner without installing anything.
 
@@ -88,6 +89,7 @@ def http_json(url: str, token: str, payload=None) -> dict:
         "User-Agent": f"profile-stats-generator ({USERNAME})",
         "Authorization": f"Bearer {token}",
     }
+    headers["Authorization"] = f"Bearer {token}"
     data = payload.encode("utf-8") if payload else None
     req = urllib.request.Request(url, data=data, headers=headers, method="POST" if data else "GET")
     try:
@@ -182,17 +184,11 @@ def fetch_rest_stats(token: str, now: datetime) -> dict:
                           params=f"q=author:{USERNAME}+type:issue&per_page=1").get("total_count", 0))
     prs = int(rest_get("/search/issues", token,
                        params=f"q=author:{USERNAME}+type:pr&per_page=1").get("total_count", 0))
-    # This is a commit-search count, not the contribution-calendar total.
-    other_repo_commits = int(rest_get("/search/commits", token,
-                                     params=f"q=author:{USERNAME}+committer-date:{rolling_start}..{rolling_end}+-user:{USERNAME}&per_page=1")
-                         .get("total_count", 0))
-
     stats = {
         "stars": total_stars,
         "commits": commits,
         "issues": issues,
         "prs": prs,
-        "other_repo_commits": other_repo_commits,
         "byte_counts": owned_byte_counts,
     }
     log(f"REST stats fetched: {json.dumps({k: v for k, v in stats.items() if k != 'byte_counts'})}")
@@ -487,14 +483,14 @@ def heading_badge(x: int, y: int, icon: str) -> str:
 
 
 # --------------------------------------------------------- card 1: stats ---
-def render_stats_card(s: dict) -> str:
+def render_stats_card(s: dict, contributions: dict) -> str:
     W, H = 640, 470
     rows = [
         ("Total Stars Earned", fmt_int(s["stars"]), "#F59E0B", star_icon_path()),
         ("Total Commits (last year)", fmt_int(s["commits"]), GREEN, commit_icon_path()),
         ("Total PRs", fmt_int(s["prs"]), PURPLE, pr_icon_path()),
         ("Total Issues", fmt_int(s["issues"]), "#F43F5E", issue_icon_path()),
-        ("Other-repository commits (last 365 days)", fmt_int(s["other_repo_commits"]), BLUE, contributed_icon_path()),
+        (f"{contributions['calendar_year']['year']} Contributions", fmt_int(contributions["calendar_year"]["total"]), BLUE, contributed_icon_path()),
     ]
     out = [svg_header(W, H, f"{USERNAME}'s GitHub Stats",
                       "stars, commits, pull requests, issues and other-repository commits")]
@@ -681,7 +677,7 @@ def main() -> None:
     streak = fetch_streak_data(token, now)
     langs = top_languages(rest["byte_counts"], n=5)
 
-    validate_and_write(os.path.join(OUT_DIR, "github-stats.svg"), render_stats_card(rest), "github-stats")
+    validate_and_write(os.path.join(OUT_DIR, "github-stats.svg"), render_stats_card(rest, streak), "github-stats")
     validate_and_write(os.path.join(OUT_DIR, "github-streak.svg"), render_streak_card(streak), "github-streak")
     validate_and_write(os.path.join(OUT_DIR, "top-languages.svg"), render_languages_card(langs), "top-languages")
     log("All three stats cards generated and validated successfully")
