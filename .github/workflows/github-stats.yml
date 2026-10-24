@@ -1,7 +1,7 @@
 name: Generate GitHub Stats Cards
 
-# Regenerates the self-hosted stat cards and dashboard data from live GitHub
-# data. No external stats services (github-readme-stats.vercel.app,
+# Regenerates the self-hosted stat cards from live GitHub data.
+# No external stats services (github-readme-stats.vercel.app,
 # streak-stats.demolab.com, ...) are involved at any point.
 on:
   schedule:
@@ -25,25 +25,22 @@ jobs:
 
       - name: Fetch GitHub data and generate SVG cards
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_STATS_TOKEN || secrets.GITHUB_TOKEN }}
         run: python3 profile/scripts/generate_stats.py
 
       - name: Validate generated SVG files
         run: |
           set -e
-          for f in profile/github-stats.svg profile/github-streak.svg profile/top-languages.svg dashboard/public/stats.json; do
+          for f in profile/github-stats.svg profile/github-streak.svg profile/top-languages.svg; do
             if [ ! -s "$f" ]; then
               echo "::error::$f is missing or empty"
               exit 1
             fi
-            if [[ "$f" == *.svg ]]; then
-              if ! head -c 200 "$f" | grep -q "<svg"; then
-                echo "::error::$f does not contain valid SVG markup"
-                exit 1
-              fi
-            else
-              python3 -m json.tool "$f" > /dev/null
+            if ! head -c 200 "$f" | grep -q "<svg"; then
+              echo "::error::$f does not contain valid SVG markup"
+              exit 1
             fi
+            python3 -c 'import sys, xml.etree.ElementTree as ET; root = ET.parse(sys.argv[1]).getroot(); assert root.tag == "{http://www.w3.org/2000/svg}svg" and root.get("viewBox")' "$f"
             echo "OK: $f ($(wc -c < "$f") bytes)"
           done
 
@@ -52,7 +49,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(stats): refresh self-hosted stats cards [skip ci]"
-          file_pattern: profile/*.svg dashboard/public/stats.json
+          file_pattern: profile/*.svg
           # Nothing is staged automatically; unchanged files simply produce no commit.
           commit_options: "--no-verify"
         env:
