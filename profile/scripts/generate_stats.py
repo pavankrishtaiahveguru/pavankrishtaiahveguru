@@ -560,7 +560,7 @@ def svg_defs() -> str:
         '      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#2563EB" flood-opacity="0.10"/>\n'
         '    </filter>\n'
         '    <filter id="ringGlow" x="-40%" y="-40%" width="180%" height="180%">\n'
-        '      <feGaussianBlur stdDeviation="4" result="blur"/>\n'
+        '      <feGaussianBlur stdDeviation="2" result="blur"/>\n'
         '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>\n'
         '    </filter>\n'
         '    <clipPath id="languageBarClip"><rect x="36" y="126" width="568" height="18" rx="9"/></clipPath>\n'
@@ -691,9 +691,8 @@ def render_streak_card(st: dict, updated_at: datetime) -> str:
 
     out.append(f'  <circle cx="{cx}" cy="{cy}" r="{R}" fill="none" stroke="#DBEAFE" stroke-width="12"/>')
     circumference = 2 * 3.141592653589793 * R
-    longest_streak = st["longest"]
-    streak_progress = st["current"] / longest_streak if longest_streak else 0
-    out.append(f'  <circle cx="{cx}" cy="{cy}" r="{R}" fill="none" stroke="url(#ringGradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="{circumference * streak_progress:.1f} {circumference:.1f}" transform="rotate(-90 {cx} {cy})" filter="url(#ringGlow)"/>')
+    decorative_arc_fraction = 0.78
+    out.append(f'  <circle cx="{cx}" cy="{cy}" r="{R}" fill="none" stroke="url(#ringGradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="{circumference * decorative_arc_fraction:.1f} {circumference:.1f}" stroke-dashoffset="0" transform="rotate(-90 {cx} {cy})" filter="url(#ringGlow)"/>')
     out.append(f'  <circle cx="{cx}" cy="{cy}" r="72" fill="#FFFFFF" fill-opacity="0.40" stroke="#FFFFFF" stroke-opacity="0.85"/>')
     out.append(flame_icon(cx, cy - 39, 1.5, FLAME))
     out.append(f'  <text x="{cx}" y="{cy + 25}" text-anchor="middle" font-family="{FONT}" font-size="38" font-weight="700" fill="{WHITE}">{st["current"]}</text>')
