@@ -29,6 +29,7 @@ import os
 import re
 import sys
 import tempfile
+import time
 import urllib.parse
 import urllib.request
 import urllib.error
@@ -40,6 +41,9 @@ OUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 
 REST_BASE = "https://api.github.com"
 GRAPHQL_URL = "https://api.github.com/graphql"
+MAX_API_ATTEMPTS = 3
+RETRY_DELAYS = (1, 2)
+TRANSIENT_HTTP_STATUS_CODES = {429, 500, 502, 503, 504}
 
 # ---------------------------------------------------------------- palette ---
 BG = "#FFFFFF"
@@ -99,25 +103,50 @@ def http_json(url: str, token: str, payload=None) -> dict:
         headers["Content-Type"] = "application/json"
     data = payload.encode("utf-8") if payload else None
     req = urllib.request.Request(url, data=data, headers=headers, method="POST" if data else "GET")
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            if not 200 <= resp.status < 300:
-                die(f"GitHub API returned HTTP {resp.status} for {url.split('?')[0]}")
-            body = resp.read().decode("utf-8")
-    except urllib.error.HTTPError as e:
-        detail = e.read().decode("utf-8", "replace")[:300].replace(token, "[REDACTED]")
-        if e.code == 403 and e.headers.get("X-RateLimit-Remaining") == "0":
-            die(
-                "GitHub API rate limit exceeded; reset at "
-                f"{e.headers.get('X-RateLimit-Reset', 'unknown')}"
+    endpoint = url.split("?")[0]
+    for attempt in range(1, MAX_API_ATTEMPTS + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                if not 200 <= resp.status < 300:
+                    die(f"GitHub API returned HTTP {resp.status} for {endpoint}")
+                body = resp.read().decode("utf-8")
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", "replace")[:300].replace(token, "[REDACTED]")
+            if e.code == 403 and e.headers.get("X-RateLimit-Remaining") == "0":
+                die(
+                    "GitHub API rate limit exceeded; reset at "
+                    f"{e.headers.get('X-RateLimit-Reset', 'unknown')}"
+                )
+            if e.code not in TRANSIENT_HTTP_STATUS_CODES or attempt == MAX_API_ATTEMPTS:
+                die(f"GitHub API returned HTTP {e.code} for {endpoint}: {detail}")
+            log(
+                f"Transient GitHub API HTTP {e.code} from {endpoint}; "
+                f"retrying ({attempt}/{MAX_API_ATTEMPTS - 1})"
             )
-        die(f"GitHub API returned HTTP {e.code} for {url.split('?')[0]}: {detail}")
-    except urllib.error.URLError as e:
-        die(f"Network error contacting GitHub API: {e.reason}")
-    try:
-        return json.loads(body)
-    except json.JSONDecodeError:
-        die(f"GitHub API response was not valid JSON for {url.split('?')[0]}")
+            time.sleep(RETRY_DELAYS[attempt - 1])
+            continue
+        except (urllib.error.URLError, TimeoutError) as e:
+            if attempt == MAX_API_ATTEMPTS:
+                reason = getattr(e, "reason", e)
+                die(f"Network error contacting GitHub API after {attempt} attempts: {reason}")
+            log(
+                f"Transient network error contacting {endpoint}; "
+                f"retrying ({attempt}/{MAX_API_ATTEMPTS - 1})"
+            )
+            time.sleep(RETRY_DELAYS[attempt - 1])
+            continue
+        try:
+            return json.loads(body)
+        except json.JSONDecodeError:
+            if attempt == MAX_API_ATTEMPTS:
+                die(f"GitHub API response was not valid JSON for {endpoint}")
+            log(
+                f"GitHub API returned malformed JSON from {endpoint}; "
+                f"retrying ({attempt}/{MAX_API_ATTEMPTS - 1})"
+            )
+            time.sleep(RETRY_DELAYS[attempt - 1])
+
+    die(f"GitHub API request failed unexpectedly for {endpoint}")
 
 
 def rest_get(path: str, token: str, params=None):
@@ -128,15 +157,33 @@ def rest_get(path: str, token: str, params=None):
 
 def graphql(query: str, token: str, variables: dict) -> dict:
     payload = json.dumps({"query": query, "variables": variables})
-    resp = http_json(GRAPHQL_URL, token, payload=payload)
-    if not isinstance(resp, dict):
-        die("GitHub GraphQL response is not a JSON object")
-    if resp.get("errors"):
-        die(f"GitHub GraphQL query failed: {json.dumps(resp['errors'])[:400]}")
-    data = resp.get("data")
-    if data is None:
-        die("GitHub GraphQL response contained no 'data' object")
-    return data
+    for attempt in range(1, MAX_API_ATTEMPTS + 1):
+        resp = http_json(GRAPHQL_URL, token, payload=payload)
+        if not isinstance(resp, dict):
+            die("GitHub GraphQL response is not a JSON object")
+        errors = resp.get("errors")
+        if errors:
+            error_text = json.dumps(errors)[:400]
+            transient = any(
+                isinstance(error, dict)
+                and "something went wrong while executing your query" in
+                str(error.get("message", "")).lower()
+                for error in errors
+            )
+            if transient and attempt < MAX_API_ATTEMPTS:
+                log(
+                    "GitHub GraphQL returned a transient server error; "
+                    f"retrying ({attempt}/{MAX_API_ATTEMPTS - 1})"
+                )
+                time.sleep(RETRY_DELAYS[attempt - 1])
+                continue
+            die(f"GitHub GraphQL query failed after {attempt} attempt(s): {error_text}")
+        data = resp.get("data")
+        if data is None:
+            die("GitHub GraphQL response contained no 'data' object")
+        return data
+
+    die("GitHub GraphQL request failed unexpectedly")
 
 
 # ----------------------------------------------------------------- helpers ---
