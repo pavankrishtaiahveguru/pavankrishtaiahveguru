@@ -85,10 +85,76 @@ class PublicFallbackTests(unittest.TestCase):
         with patch.object(
             generate_stats,
             "graphql",
-            side_effect=[generate_stats.TransientGraphQLError("viewer unavailable"), public_response],
+            side_effect=[
+                generate_stats.TransientGraphQLError("viewer unavailable"),
+                generate_stats.TransientGraphQLError("year unavailable"),
+                public_response,
+            ],
         ):
             result = generate_stats.fetch_streak_data("token", now)
 
         self.assertEqual(result["current"], 365)
         self.assertEqual(result["longest"], 365)
         self.assertEqual(result["calendar_year"]["total"], 301)
+
+    def test_split_viewer_queries_preserve_authenticated_calendar_data(self):
+        now = generate_stats.datetime(2026, 10, 28, 12, tzinfo=generate_stats.timezone.utc)
+
+        def collection(start, total):
+            days = history(start, [1] * total)
+            return {
+                "restrictedContributionsCount": 2,
+                "totalCommitContributions": total,
+                "contributionCalendar": {
+                    "totalContributions": total,
+                    "weeks": [{"contributionDays": [
+                        {"date": day["date"], "contributionCount": day["count"]}
+                        for day in days
+                    ]}],
+                },
+            }
+
+        with patch.object(
+            generate_stats,
+            "graphql",
+            side_effect=[
+                generate_stats.TransientGraphQLError("combined unavailable"),
+                {"viewer": {"login": generate_stats.USERNAME, "contributions": collection(date(2026, 1, 1), 301)}},
+                {"viewer": {"login": generate_stats.USERNAME, "contributions": collection(date(2025, 10, 29), 365)}},
+            ],
+        ):
+            result = generate_stats.fetch_streak_data("token", now)
+
+        self.assertEqual(result["calendar_year"]["total"], 301)
+        self.assertEqual(result["rolling_365"]["total"], 365)
+        self.assertEqual(result["current"], 365)
+        self.assertEqual(result["longest"], 365)
+
+
+class CalendarValidationTests(unittest.TestCase):
+    def test_malformed_calendar_response_is_rejected(self):
+        with self.assertRaises(SystemExit):
+            generate_stats.parse_calendar_range(
+                {"contributionCalendar": {"weeks": []}, "totalCommitContributions": 0},
+                date(2026, 10, 28),
+                date(2026, 10, 28),
+                "malformed",
+            )
+
+    def test_malformed_contribution_count_is_rejected(self):
+        with self.assertRaises(SystemExit):
+            generate_stats.parse_calendar_range(
+                {
+                    "contributionCalendar": {
+                        "totalContributions": 0,
+                        "weeks": [{"contributionDays": [
+                            {"date": "2026-10-28", "contributionCount": "0"}
+                        ]}],
+                    },
+                    "totalCommitContributions": 0,
+                    "restrictedContributionsCount": 0,
+                },
+                date(2026, 10, 28),
+                date(2026, 10, 28),
+                "malformed",
+            )

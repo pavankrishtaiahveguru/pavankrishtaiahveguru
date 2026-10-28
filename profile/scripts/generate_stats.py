@@ -371,6 +371,19 @@ query($login: String!, $yearFrom: DateTime!, $rollingFrom: DateTime!, $to: DateT
 }
 """
 
+VIEWER_YEAR_QUERY = CALENDAR_FIELDS + """
+query($from: DateTime!, $to: DateTime!) {
+  viewer {
+    login
+    contributions: contributionsCollection(from: $from, to: $to) {
+      ...CalendarFields
+    }
+  }
+}
+"""
+
+VIEWER_ROLLING_QUERY = VIEWER_YEAR_QUERY
+
 
 def parse_calendar_range(collection: dict, start_date, end_date, label: str) -> dict:
     if not isinstance(collection, dict):
@@ -512,11 +525,44 @@ def fetch_streak_data(token: str, now: datetime) -> dict:
         data = graphql(VIEWER_CALENDAR_QUERY, token, viewer_variables)
     except TransientGraphQLError as error:
         log(
-            "Authenticated viewer contribution query remained unavailable after retries; "
-            "falling back to the target user's public contribution calendar"
+            "Combined authenticated viewer contribution query remained unavailable; "
+            "retrying year and rolling calendars as separate queries"
         )
         log(f"Viewer query diagnostic: {error}")
-        data = graphql(USER_CALENDAR_QUERY, token, variables)
+        try:
+            viewer_year = graphql(
+                VIEWER_YEAR_QUERY,
+                token,
+                {"from": variables["yearFrom"], "to": variables["to"]},
+            )
+            viewer_rolling = graphql(
+                VIEWER_ROLLING_QUERY,
+                token,
+                {"from": variables["rollingFrom"], "to": variables["to"]},
+            )
+            year_viewer = viewer_year.get("viewer")
+            rolling_viewer = viewer_rolling.get("viewer")
+            if (
+                not isinstance(year_viewer, dict)
+                or not isinstance(rolling_viewer, dict)
+                or year_viewer.get("login") != rolling_viewer.get("login")
+            ):
+                die("Separate GraphQL viewer responses did not identify the same account")
+            data = {
+                "viewer": {
+                    "login": year_viewer["login"],
+                    "calendarYear": year_viewer.get("contributions"),
+                    "rolling365": rolling_viewer.get("contributions"),
+                }
+            }
+            log(f"Contribution calendar account: viewer '{year_viewer['login']}'")
+        except TransientGraphQLError as split_error:
+            log(
+                "Separate authenticated viewer contribution queries remained unavailable; "
+                "falling back to the target user's public contribution calendar"
+            )
+            log(f"Split viewer query diagnostic: {split_error}")
+            data = graphql(USER_CALENDAR_QUERY, token, variables)
     viewer = data.get("viewer")
     if viewer is None:
         account = data.get("user")
