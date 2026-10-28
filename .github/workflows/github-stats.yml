@@ -23,6 +23,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Verify contribution token access
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_STATS_TOKEN || secrets.GITHUB_TOKEN }}
+          TOKEN_SOURCE: ${{ secrets.GH_STATS_TOKEN != '' && 'GH_STATS_TOKEN' || 'GITHUB_TOKEN' }}
+        run: |
+          set -euo pipefail
+          response="$(mktemp)"
+          trap 'rm -f "$response"' EXIT
+          printf 'Contribution API token source: %s\n' "$TOKEN_SOURCE"
+          curl --silent --show-error --fail-with-body \
+            -X POST \
+            -H "Authorization: bearer $GITHUB_TOKEN" \
+            -H "Content-Type: application/json" \
+            https://api.github.com/graphql \
+            --data '{"query":"query($from: DateTime!, $to: DateTime!) { viewer { contributionsCollection(from: $from, to: $to) { contributionCalendar { weeks { contributionDays { date contributionCount } } } } } }","variables":{"from":"2026-10-25T00:00:00Z","to":"2026-10-26T00:00:00Z"}}' \
+            > "$response"
+          if jq -e '.errors and (.errors | length > 0)' "$response" >/dev/null; then
+            echo "::error::The selected token was rejected by the GitHub GraphQL API."
+            exit 1
+          fi
+          count="$(jq -r '[.data.viewer.contributionsCollection.contributionCalendar.weeks[].contributionDays[] | select(.date == "2026-10-25") | .contributionCount] | if length == 1 then .[0] else "not present" end' "$response")"
+          if [ "$count" = "not present" ]; then
+            echo "October 25, 2026 is not present in the returned calendar."
+          else
+            echo "October 25, 2026 contribution count: $count"
+            if [ "$count" = "0" ]; then
+              echo "::warning::The selected token does not show contributions for October 25, 2026; check token authorization and private/internal repository contribution visibility."
+            fi
+          fi
+
       - name: Fetch GitHub data and generate SVG cards
         env:
           GITHUB_TOKEN: ${{ secrets.GH_STATS_TOKEN || secrets.GITHUB_TOKEN }}
