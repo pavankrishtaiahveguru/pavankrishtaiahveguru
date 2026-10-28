@@ -446,22 +446,44 @@ def parse_calendar_range(collection: dict, start_date, end_date, label: str) -> 
 
 
 def calculate_streaks(days: list[dict], today) -> tuple[int, int]:
-    longest = run = 0
+    """Calculate streaks from a complete, date-addressed daily history."""
+    counts = {}
     for day in days:
-        if day["count"] > 0:
+        if not isinstance(day, dict) or not isinstance(day.get("date"), str):
+            raise ValueError("Contribution history contains a day without a valid date")
+        try:
+            contribution_date = datetime.strptime(day["date"], "%Y-%m-%d").date()
+        except ValueError as error:
+            raise ValueError(f"Contribution history contains an invalid date '{day['date']}'") from error
+        count = day.get("count")
+        if not isinstance(count, int) or isinstance(count, bool) or count < 0:
+            raise ValueError(f"Contribution history has an invalid count for {day['date']}")
+        if contribution_date in counts:
+            raise ValueError(f"Contribution history contains duplicate date {day['date']}")
+        counts[contribution_date] = count
+
+    if not counts:
+        raise ValueError("Contribution history is empty")
+    dates = sorted(counts)
+    expected_dates = [
+        dates[0] + timedelta(days=offset) for offset in range((dates[-1] - dates[0]).days + 1)
+    ]
+    if dates != expected_dates:
+        raise ValueError("Contribution history is missing one or more calendar dates")
+
+    longest = run = 0
+    for contribution_date in dates:
+        if counts[contribution_date] > 0:
             run += 1
             longest = max(longest, run)
         else:
             run = 0
 
+    current_start = today if counts.get(today, 0) > 0 else today - timedelta(days=1)
     current = 0
-    for day in reversed(days):
-        if day["date"] == today.isoformat() and day["count"] == 0:
-            continue
-        if day["count"] > 0:
-            current += 1
-        else:
-            break
+    while counts.get(current_start, 0) > 0:
+        current += 1
+        current_start -= timedelta(days=1)
     return current, longest
 
 
