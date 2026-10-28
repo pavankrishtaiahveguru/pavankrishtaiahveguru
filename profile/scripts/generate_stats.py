@@ -89,6 +89,10 @@ def die(msg: str) -> None:
     sys.exit(1)
 
 
+class TransientGraphQLError(Exception):
+    """A GraphQL server error that may succeed through a different query path."""
+
+
 # ------------------------------------------------------------------ fetch ---
 def http_json(url: str, token: str, payload=None) -> dict:
     """GET (or POST if payload given) a URL and parse the JSON response."""
@@ -177,6 +181,10 @@ def graphql(query: str, token: str, variables: dict) -> dict:
                 )
                 time.sleep(RETRY_DELAYS[attempt - 1])
                 continue
+            if transient:
+                raise TransientGraphQLError(
+                    f"GitHub GraphQL query failed after {attempt} attempt(s): {error_text}"
+                )
             die(f"GitHub GraphQL query failed after {attempt} attempt(s): {error_text}")
         data = resp.get("data")
         if data is None:
@@ -478,26 +486,41 @@ def fetch_streak_data(token: str, now: datetime) -> dict:
     viewer_variables = {
         key: value for key, value in variables.items() if key != "login"
     }
-    data = graphql(VIEWER_CALENDAR_QUERY, token, viewer_variables)
-    viewer = data.get("viewer")
-    if not isinstance(viewer, dict) or not isinstance(viewer.get("login"), str):
-        die("GraphQL response is missing viewer.login")
-
-    if viewer["login"].lower() == USERNAME.lower():
-        account = viewer
-        log(f"Contribution calendar account: viewer '{viewer['login']}'")
-    else:
+    try:
+        data = graphql(VIEWER_CALENDAR_QUERY, token, viewer_variables)
+    except TransientGraphQLError as error:
         log(
-            f"Authenticated viewer is '{viewer['login']}', not '{USERNAME}'. "
-            "Falling back to the target user's public contribution calendar; "
-            "private activity may not be visible with this token."
+            "Authenticated viewer contribution query remained unavailable after retries; "
+            "falling back to the target user's public contribution calendar"
         )
-        target_data = graphql(USER_CALENDAR_QUERY, token, variables)
-        account = target_data.get("user")
+        log(f"Viewer query diagnostic: {error}")
+        data = graphql(USER_CALENDAR_QUERY, token, variables)
+    viewer = data.get("viewer")
+    if viewer is None:
+        account = data.get("user")
         if not isinstance(account, dict) or not isinstance(account.get("login"), str):
             die(f"GraphQL response has no user '{USERNAME}'")
         if account["login"].lower() != USERNAME.lower():
             die(f"GraphQL returned unexpected user '{account['login']}' (expected '{USERNAME}')")
+        log(f"Contribution calendar account: public user '{account['login']}'")
+    elif not isinstance(viewer, dict) or not isinstance(viewer.get("login"), str):
+        die("GraphQL response is missing viewer.login")
+    else:
+        if viewer["login"].lower() == USERNAME.lower():
+            account = viewer
+            log(f"Contribution calendar account: viewer '{viewer['login']}'")
+        else:
+            log(
+                f"Authenticated viewer is '{viewer['login']}', not '{USERNAME}'. "
+                "Falling back to the target user's public contribution calendar; "
+                "private activity may not be visible with this token."
+            )
+            target_data = graphql(USER_CALENDAR_QUERY, token, variables)
+            account = target_data.get("user")
+            if not isinstance(account, dict) or not isinstance(account.get("login"), str):
+                die(f"GraphQL response has no user '{USERNAME}'")
+            if account["login"].lower() != USERNAME.lower():
+                die(f"GraphQL returned unexpected user '{account['login']}' (expected '{USERNAME}')")
 
     year = parse_calendar_range(
         account.get("calendarYear"), year_start, today, f"{today.year} calendar year"
